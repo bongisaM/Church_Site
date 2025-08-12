@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Church Voice Notes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a3d7c, #2a5298);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #1a3d7c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #d4af37;
+            color: #1a3d7c;
+        }
+
+        .filter-btn:hover {
+            background: #d4af37;
+            transform: translateY(-2px);
+        }
+
+        .refresh-btn {
+            background: #d4af37;
+            color: #1a3d7c;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #b3973f;
+            transform: translateY(-2px);
+        }
+
+        .audio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .audio-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .audio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .audio-header {
+            background: linear-gradient(135deg, #1a3d7c, #2a5298);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sermon .audio-header {
+            background: linear-gradient(135deg, #1a3d7c, #2a5298);
+        }
+
+        .prophecy .audio-header {
+            background: linear-gradient(135deg, #8a2be2, #7d26cd);
+        }
+
+        .audio-icon {
+            font-size: 1.5rem;
+        }
+
+        .audio-content {
+            padding: 25px;
+        }
+
+        .audio-content h3 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            color: #1a3d7c;
+        }
+
+        .prophecy .audio-content h3 {
+            color: #8a2be2;
+        }
+
+        .audio-meta {
+            color: #666;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 15px;
+            background: #f5f7fa;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            outline: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #1a3d7c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .audio-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Custom audio player */
+        audio::-webkit-media-controls-panel {
+            background-color: white;
+            border-radius: 10px;
+        }
+        
+        audio::-webkit-media-controls-play-button {
+            background-color: #1a3d7c;
+            border-radius: 50%;
+        }
+        
+        audio::-webkit-media-controls-current-time-display,
+        audio::-webkit-media-controls-time-remaining-display {
+            color: #1a3d7c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Let There Be Light</h1>
+            <p class="tagline">EVANGELICAL CHRIST'S AMBASSADORS - Voice Notes</p>
+        </header>
+        
+        <div class="controls">
+            <button class="filter-btn active" data-filter="all">All Voice Notes</button>
+            <button class="filter-btn" data-filter="sermon">Sermons</button>
+            <button class="filter-btn" data-filter="prophecy">Prophecies</button>
+            <button class="refresh-btn" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh Files
+            </button>
+        </div>
+        
+        <div class="audio-grid" id="audioGrid">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading voice notes from Google Drive...
+            </div>
+        </div>
+        
+        <footer>
+            <p>Powered by Google Drive | evangelicalchristsambassadors@gmail.com</p>
+            <p>Files automatically update when you add or remove files in Google Drive</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        const FOLDER_ID = '1gg9fA1ydIggK-LJW6Hj2c_c8Wiiuh29p';
+        const API_KEY = 'AIzaSyD8k0sPeN0JbT6J3P7mWx4V1LdZ7hXHj2k'; // Restricted API key for this demo
+        
+        // DOM elements
+        const audioGrid = document.getElementById('audioGrid');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        
+        // Current filter state
+        let currentFilter = 'all';
+        
+        // Format date function
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+        
+        // Categorize file by its name
+        function categorizeFile(fileName) {
+            const lowerName = fileName.toLowerCase();
+            if (lowerName.includes('sermon')) return 'sermon';
+            if (lowerName.includes('prophecy') || lowerName.includes('prophetic')) return 'prophecy';
+            return 'other';
+        }
+        
+        // Create audio card element
+        function createAudioCard(file) {
+            const category = categorizeFile(file.name);
+            const formattedDate = formatDate(file.createdTime);
+            
+            return `
+                <div class="audio-card ${category}">
+                    <div class="audio-header">
+                        <i class="fas ${category === 'prophecy' ? 'fa-fire' : 'fa-microphone-alt'} audio-icon"></i>
+                        <h3>${file.name.replace(/\.[^/.]+$/, "")}</h3>
+                    </div>
+                    <div class="audio-content">
+                        <div class="audio-meta">
+                            <i class="fas fa-calendar"></i> ${formattedDate}
+                            <span style="margin: 0 10px">|</span>
+                            <i class="fas ${category === 'prophecy' ? 'fa-star' : 'fa-user'}"></i> 
+                            ${category === 'prophecy' ? 'Prophetic Word' : 'Sermon'}
+                        </div>
+                        <p>${file.description || 'Listen to this inspiring message'}</p>
+                        <div class="audio-player">
+                            <audio controls>
+                                <source src="https://drive.google.com/uc?export=download&id=${file.id}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Filter audio cards
+        function filterAudioCards() {
+            const cards = document.querySelectorAll('.audio-card');
+            cards.forEach(card => {
+                const cardCategory = card.classList.contains('sermon') ? 'sermon' : 
+                                    card.classList.contains('prophecy') ? 'prophecy' : 'other';
+                
+                if (currentFilter === 'all' || currentFilter === cardCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Fetch files from Google Drive
+        async function fetchFiles() {
+            audioGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading voice notes from Google Drive...</div>';
+            
+            try {
+                const response = await fetch(`https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,createdTime,description)&orderBy=createdTime desc`);
+                const data = await response.json();
+                
+                if (!data.files || data.files.length === 0) {
+                    audioGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <h3>No voice notes found</h3>
+                            <p>Upload your audio files to the Google Drive folder to see them here</p>
+                            <p>Folder ID: ${FOLDER_ID}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Filter only audio files
+                const audioFiles = data.files.filter(file => 
+                    file.name.toLowerCase().endsWith('.mp3') || 
+                    file.name.toLowerCase().endsWith('.wav') ||
+                    file.name.toLowerCase().endsWith('.ogg')
+                );
+                
+                if (audioFiles.length === 0) {
+                    audioGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-music"></i>
+                            <h3>No audio files found</h3>
+                            <p>Please upload MP3, WAV, or OGG files to your Google Drive folder</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Generate cards
+                audioGrid.innerHTML = audioFiles.map(file => createAudioCard(file)).join('');
+                
+                // Apply current filter
+                filterAudioCards();
+                
+            } catch (error) {
+                console.error('Error fetching files:', error);
+                audioGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error loading files</h3>
+                        <p>Could not connect to Google Drive. Please try again later.</p>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Event listeners
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                filterAudioCards();
+            });
+        });
+        
+        refreshBtn.addEventListener('click', fetchFiles);
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', fetchFiles);
+    </script>
+</body>
+</html>
